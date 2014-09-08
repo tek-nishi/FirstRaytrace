@@ -1,0 +1,34 @@
+{
+  "window_width":  512,
+  "window_height": 340,
+
+  "tile_width":  32,
+  "tile_height": 32,
+
+  "thread_num": 8,
+
+  "file": "reference.dae",
+  
+  "write_time": 60,
+  "sleep_time": 1,
+
+  "subpixel_num": 16,
+  "sample_num":   208,
+
+  "recursive_depth": 5,
+
+  "focal_distance": 1.55,
+  "lens_radius":    0.03,
+  
+  "exposure": -4,
+
+  
+  "noise_filter": true,
+  "noise_sigma": 15,
+  "template_window_size": 3,
+  "search_window_size": 5,
+
+  
+  "filter_test": false,
+  "ior_value": 1.7
+}
