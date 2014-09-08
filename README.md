@@ -14,3 +14,9 @@
 + VisualStudio2013
 
 依存ライブラリはすべて同梱されています。
+
+## License
+
+License All source code files are licensed under the MPLv2.0 license
+
+[MPLv2.0](https://www.mozilla.org/MPL/2.0/)
