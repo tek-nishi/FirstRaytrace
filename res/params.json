@@ -1,26 +1,26 @@
 {
   "window_width":  512,
-  "window_height": 340,
+  "window_height": 384,
 
   "tile_width":  32,
   "tile_height": 32,
 
   "thread_num": 8,
 
-  "file": "reference.dae",
+  "path": "dragon.dae",
   
   "write_time": 60,
   "sleep_time": 1,
 
   "subpixel_num": 16,
-  "sample_num":   208,
+  "sample_num":   64,
 
-  "recursive_depth": 5,
+  "recursive_depth": 6,
 
   "focal_distance": 1.55,
-  "lens_radius":    0.03,
+  "lens_radius":    0.0,
   
-  "exposure": -4,
+  "exposure": -3,
 
   
   "noise_filter": true,

@@ -58,7 +58,7 @@ void meshDraw(const Mesh& mesh, const bool use_texture) {
   }
 
   // 面ごとの頂点インデックス配列を使って描画
-  glDrawElements(GL_TRIANGLES, mesh.points(), GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, mesh.points(), GL_UNSIGNED_INT, 0);
 
   // 頂点バッファへの関連付けを解除
   glDisableClientState(GL_VERTEX_ARRAY);

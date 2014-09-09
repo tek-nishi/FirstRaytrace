@@ -17,6 +17,7 @@
 #include "pathtrace.hpp"
 #include "os.hpp"
 #include "filtering.hpp"
+#include "bvh.hpp"
 
 
 int main() {
@@ -52,7 +53,7 @@ int main() {
   
   AppEnv app_env{ window_width, window_height };
 
-  auto scene = SceneLoader::load(os.documentPath() + "res/reference.dae");
+  auto scene = SceneLoader::load(os.documentPath() + "res/" + params.at("path").get<std::string>());
 
   
 #ifdef DEBUG
@@ -104,6 +105,8 @@ int main() {
     height           -= tile_height;
   }
 
+  // BVH構築
+  auto bvh_node = Bvh::createFromModel(scene.model);
 
   // Halton列で使うシャッフル列の生成
   std::vector<std::vector<int> > perm_table = faurePermutation(100);
@@ -121,6 +124,8 @@ int main() {
     scene.ambient,
     scene.lights,
     scene.model,
+    bvh_node,
+    
     perm_table,
 
     int(params.at("subpixel_num").get<double>()),

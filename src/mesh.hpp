@@ -35,7 +35,7 @@ public:
 	};
   
 	struct Face {
-		GLushort v1, v2, v3;
+		GLuint v1, v2, v3;
 	};
 
   

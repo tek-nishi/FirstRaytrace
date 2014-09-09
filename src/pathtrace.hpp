@@ -10,6 +10,7 @@
 #include "collision.hpp"
 #include "random.hpp"
 #include "halton.hpp"
+#include "bvh.hpp"
 
 
 namespace Pathtrace {
@@ -148,10 +149,9 @@ std::pair<bool, TestInfo> testRayObj(const Vec3f& ray_start, const Vec3f& ray_ve
 
   if (hit) {
     // TIPS:面法線は頂点の法線と重心座標から求められる
-    info.hit_normal = normal_current->a * hit_uvw_current.x()
-                    + normal_current->b * hit_uvw_current.y()
-                    + normal_current->c * hit_uvw_current.z();
-    info.hit_normal.normalize();
+    info.hit_normal = (normal_current->a * hit_uvw_current.x()
+                     + normal_current->b * hit_uvw_current.y()
+                     + normal_current->c * hit_uvw_current.z()).normalized();
 
     if (info.material->hasTexture()) {
       // TIPS:UV座標も重心座標から求められる
@@ -213,14 +213,22 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
                const int recursive_depth_max,
                const bool back_face,
                const Model& model,
+               const Bvh::BvhNode& bvh_node,
                Halton& random) {
 
-  auto test_info = testRayObj(ray_start, ray_vec, back_face, model);
+#if 1
+  Bvh::TestInfo test_info;
+  bool has_hit = Bvh::intersect(test_info, ray_start, ray_vec, bvh_node, back_face);
+#else
+  auto test_res = testRayObj(ray_start, ray_vec, back_face, model);
+  bool     has_hit   = test_res.first;
+  TestInfo test_info = test_res.second;
+#endif
 
   // 接触なし
-  if (!test_info.first) return Pixel::Zero();
+  if (!has_hit) return Pixel::Zero();
 
-  const auto& material = *test_info.second.material;
+  const auto& material = *test_info.material;
 
   // 再帰上限を超えた
   // FIXME:emissiveはツールで0.0~1.0の範囲でしか設定できないので、ここで大きな値にする
@@ -231,15 +239,16 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
   // 鏡面反射を再帰で求める
   Pixel reflection_pixel(Pixel::Zero());
   if (!material.reflective().isZero()) {
-    Vec3f reflection_vec = reflectVec(ray_vec, test_info.second.hit_normal);
+    Vec3f reflection_vec = reflectVec(ray_vec, test_info.hit_normal);
     // TIPS:ベクトルが同じ場所に衝突しないように少し進めておく
-    Vec3f reflection_start = (test_info.second.hit_pos + reflection_vec * 0.001);
+    Vec3f reflection_start = (test_info.hit_pos + reflection_vec * 0.001);
 
     reflection_pixel = rayTrace(reflection_start, reflection_vec,
                                 recursive_depth + 1,
                                 recursive_depth_max,
                                 false,
                                 model,
+                                bvh_node,
                                 random);
   }
 
@@ -247,7 +256,7 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
   Pixel refraction_pixel(Pixel::Zero());
   if (!material.transparent().isZero()) {
     Real  refractive_index     = material.ior();
-    Vec3f hit_normal           = test_info.second.hit_normal;
+    Vec3f hit_normal           = test_info.hit_normal;
     bool  refraction_back_face = true;
     Real F0;
 
@@ -270,22 +279,23 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
     Real ddn = ray_vec.dot(hit_normal);
     Real cos2t = 1.0 - refractive_index * refractive_index * (1.0 - ddn * ddn);
     if (cos2t < 0.0) {
-      Vec3f reflection_vec = reflectVec(ray_vec, test_info.second.hit_normal);
+      Vec3f reflection_vec = reflectVec(ray_vec, test_info.hit_normal);
 
       // TIPS:ベクトルが同じ場所に衝突しないように少し進めておく
-      Vec3f reflection_start = (test_info.second.hit_pos + reflection_vec * 0.001);
+      Vec3f reflection_start = (test_info.hit_pos + reflection_vec * 0.001);
       
       refraction_pixel = rayTrace(reflection_start, reflection_vec,
                                   recursive_depth + 1,
                                   recursive_depth_max,
                                   false,
                                   model,
+                                  bvh_node,
                                   random);
     }
     else {
       Vec3f refraction_vec = refractVec(ray_vec, hit_normal, refractive_index);
       // TIPS:屈折ベクトルが同じ場所に衝突しないようにちょこっとだけ進めておく
-      Vec3f refraction_start = (test_info.second.hit_pos + refraction_vec * 0.001);
+      Vec3f refraction_start = (test_info.hit_pos + refraction_vec * 0.001);
 
       // 屈折後の光の量
       Real Re = F0 + (1.0 - F0) * std::pow(1.0 + ddn, 5.0);
@@ -296,6 +306,7 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
                                   recursive_depth_max,
                                   refraction_back_face,
                                   model,
+                                  bvh_node,
                                   random) * Tr;
     }
   }
@@ -304,16 +315,17 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
   Pixel light_diffuse = Pixel::Zero();
   if (!material.diffuse().isZero()) {
     // TIPS:ベクトルが同じ場所に衝突しないように少し浮かせる
-    Vec3f passtarce_start(test_info.second.hit_pos + test_info.second.hit_normal * 0.001);
-    // Vec3f passtarce_vec = radiationVector_uniform(test_info.second.hit_normal, random, recursive_depth * 2);
-    Vec3f passtarce_vec = radiationVector_qmc(test_info.second.hit_normal, random, recursive_depth * 2);
+    Vec3f passtarce_start(test_info.hit_pos + test_info.hit_normal * 0.001);
+    // Vec3f passtarce_vec = radiationVector_uniform(test_info.hit_normal, random, recursive_depth * 2);
+    Vec3f passtarce_vec = radiationVector_qmc(test_info.hit_normal, random, recursive_depth * 2);
     
     light_diffuse = rayTrace(passtarce_start, passtarce_vec,
                              recursive_depth + 1,
                              recursive_depth_max,
                              false,
                              model,
-                             random);// * 2.0 * passtarce_vec.dot(test_info.second.hit_normal);
+                             bvh_node,
+                             random);// * 2.0 * passtarce_vec.dot(test_info.hit_normal);
   }
   
   Real reflect_value = 1.0 - material.reflective().maxCoeff();
@@ -321,8 +333,8 @@ Pixel rayTrace(const Vec3f ray_start, const Vec3f ray_vec,
 
   Pixel diffuse_color = material.diffuse();
   if (material.hasTexture()) {
-    Real u = test_info.second.hit_uv.x();
-    Real v = test_info.second.hit_uv.y();
+    Real u = test_info.hit_uv.x();
+    Real v = test_info.hit_uv.y();
     
     diffuse_color = material.texture().pixel(u, v);
   }
@@ -347,6 +359,7 @@ struct RenderInfo {
   Pixel& ambient;
   std::vector<Light>& lights;
   Model& model;
+  Bvh::BvhNode& bvh_node;
 
   std::vector<std::vector<int> >& perm_table;
 
@@ -421,6 +434,7 @@ bool render(std::mutex& mutex,
                                 info.recursive_depth,
                                 false,
                                 info.model,
+                                info.bvh_node,
                                 render_random);
         }
       }
