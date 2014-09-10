@@ -32,9 +32,6 @@ using u_long = unsigned long;
 // Windows特有の定義
 #if defined (_MSC_VER)
 
-// Eigenの16バイトアライメントは無効
-#define EIGEN_DONT_ALIGN
-
 // 文字リテラルをutf-8に
 // FIXME:パス名に英数字以外を使うと読めない
 #pragma execution_character_set("utf-8")

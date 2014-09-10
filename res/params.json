@@ -7,13 +7,13 @@
 
   "thread_num": 8,
 
-  "path": "dragon.dae",
+  "path": "miku.dae",
   
   "write_time": 60,
   "sleep_time": 1,
 
   "subpixel_num": 16,
-  "sample_num":   64,
+  "sample_num":   32,
 
   "recursive_depth": 6,
 

@@ -19,8 +19,15 @@ namespace {
 
 class Node {
   Affinef matrix_;
-  std::vector<Node> child_nodes_;
-  // FIXME:dequeにするとビルドできない…
+
+#if defined (_MSC_VER)
+  using Container = std::vector<Node, Eigen::aligned_allocator<Node> >;
+  // FIXME:16bytes alignmentしないとWindowsでエラーになる
+#else
+  using Container = std::vector<Node>;
+#endif
+
+  Container child_nodes_;
 
   std::deque<u_int> mesh_indexes_;
   std::string name_;
@@ -51,8 +58,8 @@ public:
   
   const Affinef& matrix() const { return matrix_; }
 
-  const std::vector<Node>& childs() const { return child_nodes_; }
-  std::vector<Node>& childs() { return child_nodes_; }
+  const Container& childs() const { return child_nodes_; }
+  Container& childs() { return child_nodes_; }
 
   const std::deque<u_int>& meshIndexes() const { return  mesh_indexes_; }
 
