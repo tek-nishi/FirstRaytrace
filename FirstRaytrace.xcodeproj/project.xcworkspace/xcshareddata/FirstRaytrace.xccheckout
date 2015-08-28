@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D68603BE-3453-448D-A8F9-247BB6FDDD37</string>
+	<key>IDESourceControlProjectName</key>
+	<string>FirstRaytrace</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>CE228FD9255B51F010AAE71FBF8E193BF1A49518</key>
+		<string>https://github.com/tek-nishi/FirstRaytrace.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>FirstRaytrace.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>CE228FD9255B51F010AAE71FBF8E193BF1A49518</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/tek-nishi/FirstRaytrace.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>CE228FD9255B51F010AAE71FBF8E193BF1A49518</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>CE228FD9255B51F010AAE71FBF8E193BF1A49518</string>
+			<key>IDESourceControlWCCName</key>
+			<string>FirstRaytrace</string>
+		</dict>
+	</array>
+</dict>
+</plist>
